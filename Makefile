@@ -1,4 +1,4 @@
-.PHONY: install-wasm install-sig
+.PHONY: install-wasm install-sig test
 
 install-wasm:
 	GOOS=js GOARCH=wasm go build -ldflags="-s -w" -o ti.wasm .
@@ -7,6 +7,9 @@ install-wasm:
 
 install-sig:
 	bash ./shell/install_sigs.sh
+
+test:
+	bash ./shell/test.sh
 
 %:
 	@:
