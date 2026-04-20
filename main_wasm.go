@@ -132,10 +132,6 @@ func evaluationLoop(
 			p.Fatal(ctx, err)
 		}
 
-		if t != nil {
-			dbg("token:", t.ToString(), "row:", p.Row)
-		}
-
 		err = evaluator.Eval(&p, ctx, t)
 		if err != nil {
 			p.Fatal(ctx, err)
@@ -188,10 +184,6 @@ func cleanSimpleIdentifires() {
 func main() {
 	debug.SetGCPercent(-1)
 
-	if js.Global().Get("tiDebug").Truthy() {
-		DebugEnabled = true
-	}
-
 	if err := builtin.LoadFromFS(tiConfigFS); err != nil {
 		panic(err)
 	}
@@ -220,7 +212,6 @@ func main() {
 
 	go func() {
 		for _, round := range context.GetRounds() {
-			dbg("round:", round)
 			br := bufio.NewReader(bytes.NewReader(codeBytes))
 			p := getParser(br, "input.rb")
 
@@ -230,7 +221,6 @@ func main() {
 
 			cleanSimpleIdentifires()
 			evaluationLoop(p, flags, round, false)
-			dbg("round done:", round)
 		}
 		done <- true
 	}()

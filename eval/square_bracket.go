@@ -387,16 +387,7 @@ func (e *Evaluator) generalReferenceEvaluation(
 			return err
 		}
 
-		base.SetValueT(
-			ctx.GetFrame(),
-			ctx.GetClass(),
-			ctx.GetMethod(),
-			objectT.ToString(),
-			t,
-			ctx.IsDefineStatic,
-		)
-
-		p.SetLastEvaluatedT(t)
+		p.SetLastEvaluatedT(methodT)
 
 		return nil
 
@@ -409,7 +400,7 @@ func (e *Evaluator) generalReferenceEvaluation(
 
 		p.Unget()
 
-		p.SetLastEvaluatedT(t)
+		p.SetLastEvaluatedT(methodT)
 
 		return e.evalPriorityExp(p, ctx)
 	}
