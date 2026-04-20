@@ -1,0 +1,61 @@
+{
+  "frame": "Builtin",
+  "class": "ENVClass",
+  "extends": [],
+  "instance_methods": [
+    {
+      "name": "[]",
+      "arguments": [
+        {
+          "type": [
+            "String"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "String"
+        ]
+      }
+    },
+    {
+      "name": "[]=",
+      "arguments": [
+        {
+          "type": [
+            "String"
+          ]
+        },
+        {
+          "type": [
+            "String"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "String"
+        ]
+      }
+    }
+  ],
+  "class_methods": [
+    {
+      "name": "new",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "ENVClass"
+        ]
+      }
+    }
+  ],
+  "instance_variables": [
+    {
+      "name": "env",
+      "type": [
+        "Hash"
+      ]
+    }
+  ]
+}
