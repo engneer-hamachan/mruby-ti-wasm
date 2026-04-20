@@ -1,0 +1,428 @@
+{
+  "frame": "Builtin",
+  "class": "GPIO",
+  "extends": [],
+  "instance_methods": [
+    {
+      "name": "setmode",
+      "arguments": [
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ],
+          "is_default": true
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      }
+    },
+    {
+      "name": "read",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      }
+    },
+    {
+      "name": "write",
+      "arguments": [
+        {
+          "type": [
+            "Int"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      }
+    },
+    {
+      "name": "high?",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Bool"
+        ]
+      }
+    },
+    {
+      "name": "low?",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Bool"
+        ]
+      }
+    },
+    {
+      "name": "set_function",
+      "arguments": [
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      }
+    },
+    {
+      "name": "set_dir",
+      "arguments": [
+        {
+          "type": [
+            "Int"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      }
+    },
+    {
+      "name": "set_pull",
+      "arguments": [
+        {
+          "type": [
+            "Int"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      }
+    },
+    {
+      "name": "open_drain",
+      "arguments": [
+        {
+          "type": [
+            "Int"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      }
+    }
+  ],
+  "class_methods": [
+    {
+      "name": "new",
+      "arguments": [
+        {
+          "type": [
+            "Int",
+            "String",
+            "Symbol"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ],
+          "is_default": true
+        }
+      ],
+      "return_type": {
+        "type": [
+          "GPIO"
+        ]
+      },
+      "document": "Ruby method"
+    },
+    {
+      "name": "read_at",
+      "arguments": [
+        {
+          "type": [
+            "Int",
+            "String",
+            "Symbol"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      },
+      "document": "C function"
+    },
+    {
+      "name": "high_at?",
+      "arguments": [
+        {
+          "type": [
+            "Int",
+            "String",
+            "Symbol"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Bool"
+        ]
+      }
+    },
+    {
+      "name": "low_at?",
+      "arguments": [
+        {
+          "type": [
+            "Int"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Bool"
+        ]
+      }
+    },
+    {
+      "name": "write_at",
+      "arguments": [
+        {
+          "type": [
+            "Int",
+            "String",
+            "Symbol"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      }
+    },
+    {
+      "name": "set_function_at",
+      "arguments": [
+        {
+          "type": [
+            "Int",
+            "String",
+            "Symbol"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      }
+    },
+    {
+      "name": "set_dir_at",
+      "arguments": [
+        {
+          "type": [
+            "Int",
+            "String",
+            "Symbol"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      }
+    },
+    {
+      "name": "pull_up_at",
+      "arguments": [
+        {
+          "type": [
+            "Int",
+            "String",
+            "Symbol"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      }
+    },
+    {
+      "name": "pull_down_at",
+      "arguments": [
+        {
+          "type": [
+            "Int",
+            "String",
+            "Symbol"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      }
+    },
+    {
+      "name": "open_drain_at",
+      "arguments": [
+        {
+          "type": [
+            "Int",
+            "String",
+            "Symbol"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      }
+    }
+  ],
+  "constants": [
+    {
+      "name": "IN",
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      }
+    },
+    {
+      "name": "OUT",
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      }
+    },
+    {
+      "name": "HIGH_Z",
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      }
+    },
+    {
+      "name": "PULL_UP",
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      }
+    },
+    {
+      "name": "PULL_DOWN",
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      }
+    },
+    {
+      "name": "OPEN_DRAIN",
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      }
+    },
+    {
+      "name": "ALT",
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      }
+    }
+  ],
+  "instance_variables": [
+    {
+      "name": "pin",
+      "type": [
+        "Int",
+        "String",
+        "Symbol"
+      ]
+    },
+    {
+      "name": "dir",
+      "type": [
+        "Int",
+        "NilClass"
+      ]
+    },
+    {
+      "name": "alt_function",
+      "type": [
+        "Int",
+        "NilClass"
+      ]
+    },
+    {
+      "name": "pull",
+      "type": [
+        "Int",
+        "NilClass"
+      ]
+    },
+    {
+      "name": "open_drain",
+      "type": [
+        "Bool"
+      ]
+    }
+  ]
+}

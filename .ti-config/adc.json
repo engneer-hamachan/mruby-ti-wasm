@@ -1,0 +1,67 @@
+{
+  "frame": "Builtin",
+  "class": "ADC",
+  "extends": [],
+  "instance_methods": [
+    {
+      "name": "read",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Float"
+        ]
+      }
+    },
+    {
+      "name": "read_voltage",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Float"
+        ]
+      }
+    },
+    {
+      "name": "read_raw",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      }
+    }
+  ],
+  "class_methods": [
+    {
+      "name": "new",
+      "arguments": [
+        {
+          "type": [
+            "Int",
+            "String",
+            "Symbol"
+          ]
+        },
+        {
+          "type": [
+            "Hash"
+          ],
+          "is_default": true
+        }
+      ],
+      "return_type": {
+        "type": [
+          "ADC"
+        ]
+      }
+    }
+  ],
+  "instance_variables": [
+    {
+      "name": "input",
+      "type": [
+        "Int"
+      ]
+    }
+  ]
+}

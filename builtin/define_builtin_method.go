@@ -1,0 +1,155 @@
+package builtin
+
+import (
+	"ti/base"
+)
+
+type defineBuiltinMethod struct {
+	frame       string
+	targetClass string
+}
+
+func NewDefineBuiltinMethod(
+	frame string,
+	class string,
+) *defineBuiltinMethod {
+
+	d := &defineBuiltinMethod{
+		frame:       frame,
+		targetClass: class,
+	}
+
+	return d
+}
+
+func (d *defineBuiltinMethod) setupMethodArgs(
+	method string,
+	argTypes []base.T,
+	isStatic bool,
+) []string {
+
+	var argIdentifiers []string
+
+	for _, argType := range argTypes {
+		switch argType.IsKeyValueType() {
+		case true:
+			argIdentifiers = append(argIdentifiers, argType.GetKey())
+
+			base.SetValueT(
+				d.frame,
+				d.targetClass,
+				method,
+				argType.GetRemoveSuffixKey(),
+				argType.GetKeyValue(),
+				isStatic,
+			)
+
+		default:
+			id := base.GenId()
+
+			if argType.IsBuiltinAsterisk {
+				id = "*" + id
+			}
+
+			argIdentifiers = append(argIdentifiers, id)
+			base.SetValueT(d.frame, d.targetClass, method, id, &argType, isStatic)
+		}
+	}
+
+	return argIdentifiers
+}
+
+func (d *defineBuiltinMethod) defineBuiltinInstanceMethod(
+	frame string,
+	method string,
+	argTypes []base.T,
+	returnT base.T,
+) {
+
+	argIdentifiers := d.setupMethodArgs(method, argTypes, false)
+	methodT := base.MakeMethod(frame, method, returnT, argIdentifiers)
+	methodT.DefinedFrame = frame
+	methodT.DefinedClass = d.targetClass
+	methodT.IsStatic = false
+
+	existingT := base.GetMethodT(frame, d.targetClass, method, false)
+
+	if existingT != nil {
+		existingT.Overloads = append(existingT.Overloads, *methodT)
+
+		base.TSignatureArticles =
+			append(
+				base.TSignatureArticles,
+				base.TSignatureArticle{
+					Frame:     frame,
+					Class:     d.targetClass,
+					MethodT:   *methodT,
+					IsStatic:  false,
+					IsPrivate: false,
+					FileName:  "unknown",
+					Row:       0,
+				},
+			)
+
+		return
+	}
+
+	base.SetMethodT(frame, d.targetClass, methodT, false, "unknown", 0)
+}
+
+func (d *defineBuiltinMethod) defineBuiltinStaticMethod(
+	frame string,
+	method string,
+	argTypes []base.T,
+	returnT base.T,
+) {
+
+	argIdentifiers := d.setupMethodArgs(method, argTypes, true)
+
+	methodT := base.MakeMethod(frame, method, returnT, argIdentifiers)
+	methodT.DefinedFrame = frame
+	methodT.DefinedClass = d.targetClass
+	methodT.IsStatic = true
+
+	methodT.SetBeforeEvaluateCode(
+		base.CalculateFrame(frame, d.targetClass) + "::" + method,
+	)
+
+	existingT := base.GetClassMethodT(frame, d.targetClass, method, false)
+
+	if existingT != nil {
+		existingT.Overloads = append(existingT.Overloads, *methodT)
+
+		base.TSignatureArticles =
+			append(
+				base.TSignatureArticles,
+				base.TSignatureArticle{
+					Frame:     frame,
+					Class:     d.targetClass,
+					MethodT:   *methodT,
+					IsStatic:  true,
+					IsPrivate: false,
+					FileName:  "unknown",
+					Row:       0,
+				},
+			)
+
+		return
+	}
+
+	base.SetClassMethodT(frame, d.targetClass, methodT, false, "unknown", 0)
+}
+
+func (d *defineBuiltinMethod) defineBuiltinConstant(
+	frame string,
+	class string,
+	variable string,
+	returnT base.T,
+) {
+
+	base.SetConstValueT(frame, class, variable, &returnT)
+}
+
+func (d *defineBuiltinMethod) SetDefinedClass() {
+	base.SetDefinedClass(d.frame, d.targetClass)
+}

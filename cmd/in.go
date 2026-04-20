@@ -1,0 +1,142 @@
+package cmd
+
+import (
+	"fmt"
+	"os"
+	"slices"
+	"strconv"
+	"strings"
+	"ti/parser"
+)
+
+func BuildFlags() *ExecuteFlags {
+	flags := NewExecuteFlags()
+
+	if hasFlag("-i") {
+		flags.IsDefineInfo = true
+	}
+
+	if hasFlag("--define") {
+		flags.IsDefineAllInfo = true
+	}
+
+	if hasFlag("--suggest") {
+		flags.IsSuggest = true
+	}
+
+	if hasFlag("--all-type") {
+		flags.IsAllType = true
+	}
+
+	if hasFlag("--extends") {
+		flags.IsExtends = true
+	}
+
+	if hasFlag("--hover") {
+		flags.IsHover = true
+	}
+
+	if hasFlag("--version") || hasFlag("-v") {
+		flags.IsVersion = true
+	}
+
+	if hasFlag("--help") || hasFlag("-h") {
+		flags.IsHelp = true
+	}
+
+	if hasFlag("--stdin") {
+		flags.IsStdin = true
+	}
+
+	return flags
+}
+
+func ApplyParserFlags(p *parser.Parser) {
+	if hasFlag("-d") {
+		p.Debug = true
+	}
+
+	if hasFlag("--strict") {
+		//nop
+	}
+
+	if hasFlag("--define") || hasFlag("--suggest") || hasFlag("--hover") {
+		applyTargetRow(p)
+	}
+}
+
+func hasFlag(flag string) bool {
+	return len(os.Args) > 0 && slices.Contains(os.Args, flag)
+}
+
+func applyTargetRow(p *parser.Parser) {
+	row := getTargetRow()
+	if row > 0 {
+		p.LspTargetRow = row
+	}
+}
+
+func getTargetRow() int {
+	for _, arg := range os.Args {
+		if strings.HasPrefix(arg, "--row=") {
+			if row, err := strconv.Atoi(arg[6:]); err == nil {
+				return row
+			}
+		}
+	}
+	return 0
+}
+
+func getTargetClass() string {
+	for _, arg := range os.Args {
+		if strings.HasPrefix(arg, "--class=") {
+			return arg[8:]
+		}
+	}
+	return ""
+}
+
+func getTarget() string {
+	for _, arg := range os.Args {
+		if strings.HasPrefix(arg, "--target=") {
+			return arg[9:]
+		}
+	}
+	return ""
+}
+
+func ValidateArgs() {
+	if hasFlag("--all-type") {
+		return
+	}
+
+	if hasFlag("--extends") {
+		return
+	}
+
+	if hasFlag("--version") || hasFlag("-v") {
+		return
+	}
+
+	if hasFlag("--help") || hasFlag("-h") {
+		return
+	}
+
+	if hasFlag("--stdin") {
+		return
+	}
+
+	if len(os.Args) == 1 {
+		fmt.Println("Error: Please specify a Ruby file to analyze")
+		fmt.Println("Usage: ti <file.rb> [options]")
+		os.Exit(1)
+	}
+}
+
+func GetTargetFile() string {
+	return os.Args[1]
+}
+
+func IsStdinMode() bool {
+	return hasFlag("--stdin")
+}

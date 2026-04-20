@@ -1,0 +1,417 @@
+{
+  "frame": "Builtin",
+  "class": "UART",
+  "extends": [],
+  "instance_methods": [
+    {
+      "name": "setmode",
+      "arguments": [
+        {
+          "type": [
+            "Int",
+            "NilClass"
+          ],
+          "key": "cts_pin:",
+          "is_default": true
+        },
+        {
+          "type": [
+            "Int",
+            "NilClass"
+          ],
+          "key": "baudrate:",
+          "is_default": true
+        },
+        {
+          "type": [
+            "Int",
+            "NilClass"
+          ],
+          "key": "data_bits:",
+          "is_default": true
+        },
+        {
+          "type": [
+            "Int",
+            "NilClass"
+          ],
+          "key": "stop_bits:",
+          "is_default": true
+        },
+        {
+          "type": [
+            "Int",
+            "NilClass"
+          ],
+          "key": "parity:",
+          "is_default": true
+        },
+        {
+          "type": [
+            "Int",
+            "NilClass"
+          ],
+          "key": "flow_control:",
+          "is_default": true
+        },
+        {
+          "type": [
+            "Int",
+            "NilClass"
+          ],
+          "key": "rts_pin:",
+          "is_default": true
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Self"
+        ]
+      }
+    },
+    {
+      "name": "set_flow_control",
+      "arguments": [
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "NilClass"
+        ]
+      }
+    },
+    {
+      "name": "set_format",
+      "arguments": [
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "NilClass"
+        ]
+      }
+    },
+    {
+      "name": "read",
+      "arguments": [
+        {
+          "type": [
+            "Int"
+          ],
+          "is_default": true
+        }
+      ],
+      "return_type": {
+        "type": [
+          "String",
+          "NilClass"
+        ]
+      }
+    },
+    {
+      "name": "readpartial",
+      "arguments": [
+        {
+          "type": [
+            "Int"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "String"
+        ]
+      }
+    },
+    {
+      "name": "bytes_available",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      }
+    },
+    {
+      "name": "puts",
+      "arguments": [
+        {
+          "type": [
+            "String"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "NilClass"
+        ]
+      }
+    },
+    {
+      "name": "gets",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "String",
+          "NilClass"
+        ]
+      }
+    },
+    {
+      "name": "write",
+      "arguments": [
+        {
+          "type": [
+            "String"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      }
+    },
+    {
+      "name": "flush",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Self"
+        ]
+      }
+    },
+    {
+      "name": "clear_tx_buffer",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Self"
+        ]
+      }
+    },
+    {
+      "name": "clear_rx_buffer",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Self"
+        ]
+      }
+    },
+    {
+      "name": "break",
+      "arguments": [
+        {
+          "type": [
+            "Int",
+            "Float"
+          ],
+          "is_default": true
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Self"
+        ]
+      }
+    }
+  ],
+  "class_methods": [
+    {
+      "name": "new",
+      "arguments": [
+        {
+          "type": [
+            "Symbol",
+            "String"
+          ],
+          "key": "unit:"
+        },
+        {
+          "type": [
+            "Int"
+          ],
+          "key": "txd_pin:",
+          "is_default": true
+        },
+        {
+          "type": [
+            "Int"
+          ],
+          "key": "baudrate:",
+          "is_default": true
+        },
+        {
+          "type": [
+            "Int"
+          ],
+          "key": "data_bits:",
+          "is_default": true
+        },
+        {
+          "type": [
+            "Int"
+          ],
+          "key": "stop_bits:",
+          "is_default": true
+        },
+        {
+          "type": [
+            "Int"
+          ],
+          "key": "cts_pin:",
+          "is_default": true
+        },
+        {
+          "type": [
+            "Int"
+          ],
+          "key": "rxd_pin:",
+          "is_default": true
+        },
+        {
+          "type": [
+            "Int"
+          ],
+          "key": "parity:",
+          "is_default": true
+        },
+        {
+          "type": [
+            "Int"
+          ],
+          "key": "flow_control:",
+          "is_default": true
+        },
+        {
+          "type": [
+            "Int"
+          ],
+          "key": "rts_pin:",
+          "is_default": true
+        },
+        {
+          "type": [
+            "Int",
+            "NilClass"
+          ],
+          "key": "rx_buffer_size:",
+          "is_default": true
+        }
+      ],
+      "return_type": {
+        "type": [
+          "UART"
+        ]
+      }
+    }
+  ],
+  "constants": [
+    {
+      "name": "PARITY_NONE",
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      }
+    },
+    {
+      "name": "PARITY_ODD",
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      }
+    },
+    {
+      "name": "PARITY_EVEN",
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      }
+    },
+    {
+      "name": "FLOW_CONTROL_NONE",
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      }
+    },
+    {
+      "name": "FLOW_CONTROL_RTS_CTS",
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      }
+    },
+    {
+      "name": "FLOW_CONTROL_XON_XOFF",
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      }
+    }
+  ],
+  "instance_properties": [
+    {
+      "name": "baudrate",
+      "type": [
+        "Int"
+      ],
+      "access": "reader"
+    }
+  ],
+  "instance_variables": [
+    {
+      "name": "unit_num",
+      "type": [
+        "Int"
+      ]
+    },
+    {
+      "name": "rx_buffer",
+      "type": [
+        "UART::RxBuffer"
+      ]
+    },
+    {
+      "name": "line_ending",
+      "type": [
+        "String"
+      ]
+    }
+  ]
+}

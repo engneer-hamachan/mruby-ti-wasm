@@ -1,0 +1,92 @@
+package base
+
+type T struct {
+	ID                  string
+	tType               int
+	val                 any
+	key                 string
+	frame               string
+	objectClass         string
+	method              string
+	defineArgs          []string
+	hasDefault          bool
+	isBuiltin           bool
+	variants            []T
+	isInfferedFromCall  bool
+	IsBuiltinAsterisk   bool
+	IsConditionalReturn bool
+	IsDestructive       bool
+	beforeEvaluateCode  string
+	isReadOnly          bool
+	blockParamaters     []T
+	IsBeforeSpace       bool
+	IsBlockGiven        bool
+	IsProtected         bool
+	IsStatic            bool
+	DefinedFrame        string
+	DefinedClass        string
+	DefinedMethod       string
+	IsCaptureOwner      bool
+	owner               any
+	IsExtend            bool
+	IsInclude           bool
+	Round               string
+	Overloads           []T
+}
+
+func (t *T) DeepCopy() *T {
+	if t == nil {
+		return nil
+	}
+
+	result := &T{
+		ID:                  t.ID,
+		tType:               t.tType,
+		val:                 t.val,
+		key:                 t.key,
+		frame:               t.frame,
+		objectClass:         t.objectClass,
+		method:              t.method,
+		hasDefault:          t.hasDefault,
+		isBuiltin:           t.isBuiltin,
+		isInfferedFromCall:  t.isInfferedFromCall,
+		IsBuiltinAsterisk:   t.IsBuiltinAsterisk,
+		IsConditionalReturn: t.IsConditionalReturn,
+		IsDestructive:       t.IsDestructive,
+		beforeEvaluateCode:  t.beforeEvaluateCode,
+		isReadOnly:          t.isReadOnly,
+		IsBeforeSpace:       t.IsBeforeSpace,
+		IsBlockGiven:        t.IsBlockGiven,
+		IsProtected:         t.IsProtected,
+		DefinedFrame:        t.DefinedFrame,
+		DefinedClass:        t.DefinedClass,
+		DefinedMethod:       t.DefinedMethod,
+		owner:               t.owner,
+		IsCaptureOwner:      t.IsCaptureOwner,
+		IsInclude:           t.IsInclude,
+		IsExtend:            t.IsExtend,
+		Round:               t.Round,
+		IsStatic:            t.IsStatic,
+	}
+
+	if t.defineArgs != nil {
+		result.defineArgs = make([]string, len(t.defineArgs))
+		copy(result.defineArgs, t.defineArgs)
+	}
+
+	if t.variants != nil {
+		result.variants = make([]T, len(t.variants))
+		for i, variant := range t.variants {
+			result.variants[i] = *variant.DeepCopy()
+		}
+	}
+
+	if t.blockParamaters != nil {
+		result.blockParamaters = make([]T, len(t.blockParamaters))
+		for i, param := range t.blockParamaters {
+			result.blockParamaters[i] = *param.DeepCopy()
+		}
+	}
+
+	return result
+}

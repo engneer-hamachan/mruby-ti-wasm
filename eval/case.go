@@ -1,0 +1,219 @@
+package eval
+
+import (
+	"ti/base"
+	"ti/context"
+	"ti/parser"
+)
+
+type Case struct{}
+
+func NewCase() DynamicEvaluator {
+	return &Case{}
+}
+
+func init() {
+	DynamicEvaluators["case"] = NewCase()
+}
+
+func (c *Case) Evaluation(
+	e *Evaluator,
+	p *parser.Parser,
+	ctx context.Context,
+	t *base.T,
+) (err error) {
+
+	objectT, err := p.Read()
+	if err != nil {
+		return err
+	}
+
+	currentT :=
+		base.GetValueT(
+			ctx.GetFrame(),
+			ctx.GetClass(),
+			ctx.GetMethod(),
+			objectT.ToString(),
+			ctx.IsDefineStatic,
+		).DeepCopy()
+
+	err = e.Eval(p, ctx, objectT)
+	if err != nil {
+		return err
+	}
+
+	evaluatedT := p.GetLastEvaluatedT()
+
+	if objectT.IsIdentifierType() {
+		defer func() {
+			base.SetValueT(
+				ctx.GetFrame(),
+				ctx.GetClass(),
+				ctx.GetMethod(),
+				objectT.ToString(),
+				currentT,
+				ctx.IsDefineStatic,
+			)
+		}()
+	}
+
+	var caseTs []base.T
+	var isFirstBranch bool
+
+	resultTs := []base.T{*base.MakeNil()}
+
+	for {
+		nextT, err := p.Read()
+		if err != nil {
+			return err
+		}
+
+		if nextT == nil {
+			break
+		}
+
+		if nextT.IsEndIdentifier() {
+			if !p.IsParsingExpression() {
+				resultTs = append(resultTs, p.GetLastEvaluatedT())
+			}
+
+			break
+		}
+
+		switch nextT.ToString() {
+		case "in":
+			switch isFirstBranch {
+			case true:
+				resultTs = append(resultTs, p.GetLastEvaluatedT())
+			case false:
+				isFirstBranch = true
+			}
+
+			err := e.Eval(p, ctx, nextT)
+			if err != nil {
+				return err
+			}
+
+			evaluatedT := p.GetLastEvaluatedT()
+			caseTs = append(caseTs, evaluatedT)
+
+			continue
+
+		case "when":
+			switch isFirstBranch {
+			case true:
+				resultTs = append(resultTs, p.GetLastEvaluatedT())
+			case false:
+				isFirstBranch = true
+			}
+
+			if !objectT.IsIdentifierType() {
+				continue
+			}
+
+			caseT, err := p.Read()
+			if err != nil {
+				return err
+			}
+
+			err = e.Eval(p, ctx, caseT)
+			if err != nil {
+				return err
+			}
+
+			evaluatedT := p.GetLastEvaluatedT()
+			caseTs = append(caseTs, evaluatedT)
+
+			base.SetValueT(
+				ctx.GetFrame(),
+				ctx.GetClass(),
+				ctx.GetMethod(),
+				objectT.ToString(),
+				&evaluatedT,
+				ctx.IsDefineStatic,
+			)
+
+		case "else":
+			resultTs = resultTs[1:]
+			resultTs = append(resultTs, p.GetLastEvaluatedT())
+
+			if !objectT.IsIdentifierType() {
+				continue
+			}
+
+			if !evaluatedT.IsUnionType() {
+				isContain := false
+				for _, caseT := range caseTs {
+					if caseT.GetType() == evaluatedT.GetType() {
+						isContain = true
+						break
+					}
+				}
+
+				switch isContain {
+				case true:
+					base.SetValueT(
+						ctx.GetFrame(),
+						ctx.GetClass(),
+						ctx.GetMethod(),
+						objectT.ToString(),
+						base.MakeUntyped(),
+						ctx.IsDefineStatic,
+					)
+				default:
+					base.SetValueT(
+						ctx.GetFrame(),
+						ctx.GetClass(),
+						ctx.GetMethod(),
+						objectT.ToString(),
+						&evaluatedT,
+						ctx.IsDefineStatic,
+					)
+				}
+
+				continue
+			}
+
+			unionVariants := evaluatedT.GetVariants()
+
+			var newUnionVariants []base.T
+
+			for _, variant := range unionVariants {
+				isContain := false
+				for _, caseT := range caseTs {
+					if caseT.GetObjectClass() == variant.GetObjectClass() {
+						isContain = true
+						break
+					}
+				}
+
+				if isContain {
+					continue
+				}
+
+				newUnionVariants = append(newUnionVariants, variant)
+			}
+
+			unionT := base.MakeUnion(newUnionVariants)
+
+			base.SetValueT(
+				ctx.GetFrame(),
+				ctx.GetClass(),
+				ctx.GetMethod(),
+				objectT.ToString(),
+				unionT.UnifyVariants(),
+				ctx.IsDefineStatic,
+			)
+		}
+
+		err = e.Eval(p, ctx, nextT)
+		if err != nil {
+			return err
+		}
+	}
+
+	resultT := base.MakeUnifiedT(resultTs)
+	e.setLastEvaluatedT(p, ctx, resultT)
+
+	return nil
+}

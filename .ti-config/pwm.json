@@ -1,0 +1,102 @@
+{
+  "frame": "Builtin",
+  "class": "PWM",
+  "extends": [],
+  "instance_methods": [
+    {
+      "name": "frequency",
+      "arguments": [
+        {
+          "type": [
+            "Float",
+            "Int"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Float"
+        ]
+      }
+    },
+    {
+      "name": "duty",
+      "arguments": [
+        {
+          "type": [
+            "Float",
+            "Int"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Float"
+        ]
+      }
+    },
+    {
+      "name": "period_us",
+      "arguments": [
+        {
+          "type": [
+            "Int"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Float"
+        ]
+      }
+    },
+    {
+      "name": "pulse_width_us",
+      "arguments": [
+        {
+          "type": [
+            "Int"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Float"
+        ]
+      }
+    }
+  ],
+  "class_methods": [
+    {
+      "name": "new",
+      "arguments": [
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Float",
+            "Int"
+          ],
+          "key": "frequency:",
+          "is_default": true
+        },
+        {
+          "type": [
+            "Float",
+            "Int"
+          ],
+          "key": "duty:",
+          "is_default": true
+        }
+      ],
+      "return_type": {
+        "type": [
+          "PWM"
+        ]
+      }
+    }
+  ]
+}

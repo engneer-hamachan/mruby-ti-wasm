@@ -1,0 +1,330 @@
+package eval
+
+import (
+	"fmt"
+	"ti/base"
+	"ti/context"
+	"ti/parser"
+)
+
+type Evaluator struct{}
+
+func (e *Evaluator) evalPriorityExp(
+	p *parser.Parser,
+	ctx context.Context,
+) error {
+
+	nextT, err := p.Read()
+	if err != nil {
+		return err
+	}
+
+	if nextT.GetPower() >= 60 {
+		err = e.Eval(p, ctx, nextT)
+		if err != nil {
+			return err
+		}
+
+		return nil
+	}
+
+	p.Unget()
+
+	return nil
+}
+
+func (e *Evaluator) setLastEvaluatedT(
+	p *parser.Parser,
+	ctx context.Context,
+	t *base.T,
+) {
+
+	switch t.GetType() {
+	case base.UNKNOWN:
+		switch {
+		case t.GetBeforeEvaluateCode() != "":
+			p.SetLastEvaluatedT(t)
+
+		case ctx.GetClass() != "" && ctx.GetMethod() != "":
+			t.SetBeforeEvaluateCode(ctx.GetClass() + "." + ctx.GetMethod())
+			p.SetLastEvaluatedT(t)
+
+			return
+
+		case ctx.GetClass() != "":
+			t.SetBeforeEvaluateCode(ctx.GetMethod())
+			p.SetLastEvaluatedT(t)
+
+			return
+		}
+
+	case base.INT:
+		if t.GetBeforeEvaluateCode() != "" {
+			break
+		}
+
+		t.SetBeforeEvaluateCode(t.ToString())
+
+	case base.STRING:
+		if t.GetBeforeEvaluateCode() != "" {
+			break
+		}
+
+		t.SetBeforeEvaluateCode("'" + t.ToString() + "'")
+
+	case base.NIL:
+		if t.GetBeforeEvaluateCode() != "" {
+			break
+		}
+
+		t.SetBeforeEvaluateCode("nil")
+
+	default:
+		if t.GetBeforeEvaluateCode() != "" {
+			break
+		}
+
+		t.SetBeforeEvaluateCode(t.ToString())
+	}
+
+	p.SetLastEvaluatedT(t)
+}
+
+
+func (e *Evaluator) EvalExpr(
+	p *parser.Parser,
+	ctx context.Context,
+	t *base.T,
+	rbp int8,
+) error {
+
+	for {
+		err := e.Eval(p, ctx, t)
+		if err != nil {
+			return err
+		}
+
+		t, err = p.Read()
+		if err != nil {
+			return err
+		}
+
+		if t == nil {
+			return nil
+		}
+
+		// foo(a.b ? 1 : 2)
+		if rbp > 0 && t.IsTargetIdentifier("?") {
+			p.Unget()
+			break
+		}
+
+		if t.IsCommaIdentifier() {
+			if !ctx.IsMultiValue() {
+				p.Unget()
+				break
+			}
+
+			continue
+		}
+
+		// a + b[0]
+		if t.IsTargetIdentifier("[") {
+			continue
+		}
+
+		if t.GetPower() <= rbp {
+			p.Unget()
+			break
+		}
+	}
+
+	return nil
+}
+
+func (e *Evaluator) EvalToTargetToken(
+	p *parser.Parser,
+	ctx context.Context,
+	tokenStr string,
+) error {
+
+	for {
+		nextT, err := p.Read()
+		if err != nil {
+			return err
+		}
+
+		if nextT == nil {
+			return nil
+		}
+
+		if nextT.IsTargetIdentifier(tokenStr) {
+			break
+		}
+
+		err = e.Eval(p, ctx, nextT)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (e *Evaluator) Eval(
+	p *parser.Parser,
+	ctx context.Context,
+	t *base.T,
+) (err error) {
+
+	if t == nil {
+		return nil
+	}
+
+	if p.Lexer.LastSpecialComment != "" && ctx.IsCheckRound() {
+		comment := p.ConsumeTiSpecialComment()
+		commentSig :=
+			base.SpecialCodeComment{
+				FileName: p.FileName,
+				Row:      p.Row,
+				Document: comment,
+			}
+
+		base.SpecialCodeComments = append(base.SpecialCodeComments, commentSig)
+	}
+
+	nextT, err := p.Read()
+	if err != nil {
+		return err
+	}
+
+	switch {
+	// hoge[:a]
+	case t.IsRefferenceAbleT() && nextT.IsRefferenceSquareT():
+		return e.referenceEvaluation(p, ctx, t)
+
+	//CONST
+	case t.IsConstType():
+		return e.handleConstEvaluation(p, ctx, t)
+
+	// A::B
+	case t.IsNameSpaceIdentifier():
+		return nameSpaceEvaluation(e, p, ctx, t)
+
+	// hoge.fuga
+	case t.IsDotIdentifier():
+		t := p.GetLastEvaluatedT()
+
+		return e.handleEvaluateMethod(p, ctx, &t, nextT, false)
+
+	// hoge.fuga
+	case nextT.IsDotIdentifier() && !t.IsNewLineIdentifier():
+		nextT, err := p.Read()
+		if err != nil {
+			return err
+		}
+
+		return e.handleEvaluateMethod(p, ctx, t, nextT, false)
+
+	// hoge&.fuga
+	case t.IsAndDotIdentifier():
+		t := p.GetLastEvaluatedT()
+
+		return e.handleEvaluateMethod(p, ctx, &t, nextT, true)
+
+	// hoge&.fuga
+	case nextT.IsAndDotIdentifier():
+		nextT, err := p.Read()
+		if err != nil {
+			return err
+		}
+
+		return e.handleEvaluateMethod(p, ctx, t, nextT, true)
+
+	case p.LastCallT.IsNotPowerDown(nextT) && nextT.IsQuestionIdentifier():
+		err := e.Eval(p, ctx, t)
+		if err != nil {
+			return err
+		}
+
+		evaluator := DynamicEvaluators[nextT.ToString()]
+
+		return evaluator.Evaluation(e, p, ctx, nextT)
+
+	// 1..2
+	case nextT.IsTargetIdentifier("..") || nextT.IsTargetIdentifier("..."):
+		err := e.Eval(p, ctx, t)
+		if err != nil {
+			return err
+		}
+
+		evaluator := DynamicEvaluators[nextT.ToString()]
+
+		return evaluator.Evaluation(e, p, ctx, nextT)
+
+	// { |
+	case t.IsTargetIdentifier("{") && nextT.IsTargetIdentifier("|"):
+		p.Unget()
+
+	// do |
+	case t.IsTargetIdentifier("do") && nextT.IsTargetIdentifier("|"):
+		p.Unget()
+
+	// 1 + 1
+	case t.IsTransformTargetIdentifier():
+		p.Unget()
+		objectT := p.GetLastEvaluatedT()
+		return e.handleEvaluateMethod(p, ctx, &objectT, t, false)
+
+	// 1 + 1
+	case p.LastCallT.IsNotPowerDown(nextT) && nextT.IsTransformTargetIdentifier() && !t.IsTargetIdentifier("def"):
+		err := e.Eval(p, ctx, t)
+		if err != nil {
+			return err
+		}
+
+		objectT := p.GetLastEvaluatedT()
+		return e.handleEvaluateMethod(p, ctx, &objectT, nextT, false)
+
+	case t.IsClassType():
+		if !base.IsClassDefined([]string{ctx.GetFrame()}, t.ToString()) {
+			return fmt.Errorf("class '%s' is not defined", t.ToString())
+		}
+
+		p.Unget()
+		e.setLastEvaluatedT(p, ctx, t)
+
+	// 1
+	case t.IsImmediate():
+		p.Unget()
+		e.setLastEvaluatedT(p, ctx, t)
+
+		return nil
+
+	// \n
+	case t.IsNewLineIdentifier():
+		p.Unget()
+		p.EndParsingExpression()
+
+		return nil
+
+	//=begin
+	case t.IsEqualIdentifier() && nextT.IsTargetIdentifier("begin"):
+		return skipMultilineComment(p)
+
+	// test()
+	case t.IsTopLevelFunctionIdentifier(ctx.GetFrame(), ctx.GetClass()):
+		p.Unget()
+		return e.handleEvaluateMethod(p, ctx, base.MakeObjectObject(), t, false)
+
+	default:
+		p.Unget()
+	}
+
+	err = e.handleDynamicOrIdentifierEvaluator(p, ctx, t)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

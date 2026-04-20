@@ -1,0 +1,271 @@
+{
+  "frame": "Builtin",
+  "class": "SPI",
+  "extends": [],
+  "instance_methods": [
+    {
+      "name": "sck_pin",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      }
+    },
+    {
+      "name": "cipo_pin",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      }
+    },
+    {
+      "name": "copi_pin",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      }
+    },
+    {
+      "name": "cs_pin",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      }
+    },
+    {
+      "name": "select",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Untyped"
+        ]
+      },
+      "block_parameters": [
+        "SPI"
+      ]
+    },
+    {
+      "name": "deselect",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "NilClass"
+        ]
+      }
+    },
+    {
+      "name": "write",
+      "arguments": [
+        {
+          "type": [
+            "Int",
+            "String",
+            "[Int]"
+          ],
+          "is_asterisk": true
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      }
+    },
+    {
+      "name": "read",
+      "arguments": [
+        {
+          "type": [
+            "Int"
+          ]
+        },
+        {
+          "type": [
+            "Int"
+          ],
+          "is_default": true
+        }
+      ],
+      "return_type": {
+        "type": [
+          "String"
+        ]
+      }
+    },
+    {
+      "name": "transfer",
+      "arguments": [
+        {
+          "type": [
+            "Int",
+            "String",
+            "[Int]"
+          ],
+          "is_asterisk": true
+        },
+        {
+          "type": [
+            "Int"
+          ],
+          "key": "additional_read_bytes:",
+          "is_default": true
+        }
+      ],
+      "return_type": {
+        "type": [
+          "String"
+        ]
+      }
+    },
+    {
+      "name": "params_to_array",
+      "arguments": [
+        {
+          "type": [
+            "Int",
+            "String",
+            "[Int]"
+          ],
+          "is_asterisk": true
+        }
+      ],
+      "return_type": {
+        "type": [
+          "[Int]"
+        ]
+      },
+      "document": ""
+    }
+  ],
+  "class_methods": [
+    {
+      "name": "new",
+      "arguments": [
+        {
+          "type": [
+            "Symbol"
+          ],
+          "key": "unit:"
+        },
+        {
+          "type": [
+            "Int"
+          ],
+          "key": "mode:",
+          "is_default": true
+        },
+        {
+          "type": [
+            "Int"
+          ],
+          "key": "first_bit:",
+          "is_default": true
+        },
+        {
+          "type": [
+            "Int"
+          ],
+          "key": "frequency:",
+          "is_default": true
+        },
+        {
+          "type": [
+            "Int"
+          ],
+          "key": "sck_pin:",
+          "is_default": true
+        },
+        {
+          "type": [
+            "Int"
+          ],
+          "key": "cipo_pin:",
+          "is_default": true
+        },
+        {
+          "type": [
+            "Int"
+          ],
+          "key": "copi_pin:",
+          "is_default": true
+        },
+        {
+          "type": [
+            "Int"
+          ],
+          "key": "cs_pin:",
+          "is_default": true
+        }
+      ],
+      "return_type": {
+        "type": [
+          "SPI"
+        ]
+      }
+    }
+  ],
+  "constants": [
+    {
+      "name": "MSB_FIRST",
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      }
+    },
+    {
+      "name": "LSB_FIRST",
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      }
+    },
+    {
+      "name": "DATA_BITS",
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      }
+    },
+    {
+      "name": "DEFAULT_FREQUENCY",
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      }
+    }
+  ],
+  "instance_properties": [
+    {
+      "name": "unit",
+      "type": [
+        "String"
+      ],
+      "access": "reader"
+    }
+  ],
+  "instance_variables": [
+    {
+      "name": "cs",
+      "type": [
+        "GPIO"
+      ]
+    },
+    {
+      "name": "_unit_info",
+      "type": [
+        "String"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+ti
+bin
+sample**.rb
+CLAUDE.md
+.ti-loader.json
+parser.md
+.go-nav.settings.json
+docs/superpowers/*
+ti.wasm

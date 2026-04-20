@@ -1,0 +1,280 @@
+package eval
+
+import (
+	"fmt"
+	"ti/base"
+	"ti/context"
+	"ti/parser"
+)
+
+type Bind struct{}
+
+func NewBind() DynamicEvaluator {
+	return &Bind{}
+}
+
+func init() {
+	bind := NewBind()
+	DynamicEvaluators["="] = bind
+	DynamicEvaluators["||="] = bind
+}
+
+func (b *Bind) handleScalarAsigntment(
+	e *Evaluator,
+	p *parser.Parser,
+	ctx context.Context,
+	leftT *base.T,
+) (err error) {
+
+	ctx.IsBind = true
+
+	nextT, err := p.Read()
+	if err != nil {
+		return err
+	}
+
+	err = e.EvalExpr(p, ctx, nextT, 0)
+	if err != nil {
+		return err
+	}
+
+	rightT := p.GetLastEvaluatedT()
+
+	nextT, err = p.Read()
+	if err != nil {
+		return err
+	}
+
+	// x = a[0]
+	switch nextT.IsTargetIdentifier("[") {
+	case true:
+		e.Eval(p, ctx, nextT)
+		rightT = p.GetLastEvaluatedT()
+	default:
+		p.Unget()
+	}
+
+	if leftT.HasDefault() {
+		return nil
+	}
+
+	if leftT.IsReadOnly() && !leftT.IsBeforeEvaluateAtmarkPrefix() {
+		return fmt.Errorf("%s is read only", leftT.GetBeforeEvaluateCode())
+	}
+
+	rightT.DisableReadOnly()
+
+	if leftT.IsReadOnly() {
+		rightT.EnableReadOnly()
+	}
+
+	rightT.SetHasDefault(ctx.IsDefineArg)
+	rightT.ClearDefineArgs()
+
+	*leftT = rightT
+
+	p.SetLastEvaluatedT(leftT)
+
+	return nil
+}
+
+func (b *Bind) handleMultipleToScalarAsigntment(
+	ctx context.Context,
+	leftTs []*base.T,
+	rightT *base.T,
+) error {
+
+	var idx int
+
+	switch rightT.GetType() {
+	case base.ARRAY:
+		for {
+			if (idx + 1) > len(leftTs) {
+				break
+			}
+
+			if (idx + 1) > len(rightT.GetVariants()) {
+				*leftTs[idx] = *base.MakeNil()
+				idx++
+				continue
+			}
+
+			if leftTs[idx].HasDefault() {
+				return nil
+			}
+
+			if leftTs[idx].IsReadOnly() && leftTs[idx].GetBeforeEvaluateCode()[0] != '@' {
+				return fmt.Errorf("%s is read only", leftTs[idx].GetBeforeEvaluateCode())
+			}
+
+			unionT := rightT.UnifyVariants()
+			unionT.SetHasDefault(ctx.IsDefineArg)
+
+			*leftTs[idx] = *unionT
+
+			idx++
+		}
+
+	case base.UNION:
+		for _, variant := range rightT.GetVariants() {
+			if variant.IsArrayType() {
+				b.handleMultipleToMultipleAsigntment(leftTs, &variant)
+				continue
+			}
+
+			b.handleMultipleToScalarAsigntment(ctx, leftTs, &variant)
+		}
+
+	default:
+		if leftTs[0].HasDefault() {
+			return nil
+		}
+
+		if leftTs[0].IsReadOnly() && leftTs[0].GetBeforeEvaluateCode()[0] != '@' {
+			return fmt.Errorf("%s is read only", leftTs[0].GetBeforeEvaluateCode())
+		}
+
+		rightT.SetHasDefault(ctx.IsDefineArg)
+
+		if leftTs[idx].IsReadOnly() {
+			rightT.EnableReadOnly()
+		}
+
+		rightT.SetHasDefault(ctx.IsDefineArg)
+		*leftTs[0] = *rightT
+	}
+
+	return nil
+}
+
+func (b *Bind) handleMultipleToMultipleAsigntment(
+	leftTs []*base.T,
+	rightTs *base.T,
+) error {
+
+	var leftIdx int
+	var rightIdx int
+
+	rightVariants := rightTs.GetVariants()
+	rightLen := len(rightTs.GetVariants())
+
+	for {
+		if (leftIdx + 1) > len(leftTs) {
+			break
+		}
+
+		if rightIdx >= rightLen {
+			*leftTs[leftIdx] = *base.MakeNil()
+
+			leftIdx++
+			rightIdx++
+
+			continue
+		}
+
+		if leftTs[leftIdx].HasDefault() {
+			return nil
+		}
+
+		if leftTs[leftIdx].IsReadOnly() &&
+			!leftTs[leftIdx].IsBeforeEvaluateAtmarkPrefix() {
+
+			return fmt.Errorf(
+				"%s is read only",
+				leftTs[leftIdx].GetBeforeEvaluateCode(),
+			)
+		}
+
+		if leftTs[leftIdx].IsReadOnly() {
+			rightVariants[rightIdx].EnableReadOnly()
+		}
+
+		// *x, y = 1, 2, 3
+		if leftTs[leftIdx].IsBeforeEvaluateAsteriskPrefix() {
+			arrayT := base.MakeAnyArray()
+
+			for {
+				if rightIdx > (rightLen - len(leftTs[leftIdx:])) {
+					break
+				}
+
+				arrayT.AppendArrayVariant(rightVariants[rightIdx])
+
+				rightIdx++
+			}
+
+			*leftTs[leftIdx] = *arrayT
+
+			leftIdx++
+
+			continue
+		}
+
+		*leftTs[leftIdx] = rightVariants[rightIdx]
+
+		leftIdx++
+		rightIdx++
+	}
+
+	return nil
+}
+
+func (b *Bind) handleMultipleAsigntment(
+	e *Evaluator,
+	p *parser.Parser,
+	ctx context.Context,
+	leftTs []*base.T,
+) (err error) {
+
+	nextT, err := p.Read()
+	if err != nil {
+		return err
+	}
+
+	err = e.EvalExpr(p, ctx, nextT, 0)
+	if err != nil {
+		return err
+	}
+
+	rightT := p.GetLastEvaluatedT()
+
+	switch rightT.IsArrayType() {
+	case true:
+		return b.handleMultipleToMultipleAsigntment(leftTs, &rightT)
+
+	default:
+		return b.handleMultipleToScalarAsigntment(ctx, leftTs, &rightT)
+	}
+}
+
+func (b *Bind) Evaluation(
+	e *Evaluator,
+	p *parser.Parser,
+	ctx context.Context,
+	t *base.T,
+) (err error) {
+
+	defer setBindInfos(p, p.ErrorRow)
+
+	p.EndParsingExpression()
+
+	ctx.StartMultiValue()
+	defer ctx.EndMultiValue()
+
+	some := p.GetLastEvaluatedTPointer()
+
+	if err := p.SkipNewline(); err != nil {
+		return err
+	}
+
+	switch v := some.(type) {
+	case *base.T:
+		return b.handleScalarAsigntment(e, p, ctx, v)
+
+	case []*base.T:
+		return b.handleMultipleAsigntment(e, p, ctx, v)
+
+	default:
+		return fmt.Errorf("syntax error")
+	}
+}

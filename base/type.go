@@ -1,0 +1,168 @@
+package base
+
+const (
+	EOS                = -1
+	NIL                = 0
+	INT                = 257
+	UNKNOWN            = 258
+	STRING             = 259
+	BOOL               = 260
+	FLOAT              = 261
+	UNTYPED            = 262
+	ARRAY              = 263
+	HASH               = 264
+	UNION              = 265
+	OBJECT             = 266
+	BLOCK              = 267
+	CLASS              = 268
+	SELF               = 269
+	SYMBOL             = 270
+	KEYVALUE           = 271
+	CONST              = 272
+	RANGE              = 273
+	UNIFY              = 274
+	OPTIONAL_UNIFY     = 275
+	BLOCK_RESULT_ARRAY = 276
+	SELF_ARRAY         = 277
+	ARGUMENT           = 278
+	UNIFY_ARGUMENT     = 279
+	KEYVALUE_ARRAY     = 280
+	FLATTEN            = 281
+	ITEM               = 282
+	OWNER              = 283
+)
+
+func ArrayTypeToString(t *T) string {
+	str := "Array<"
+
+	unifiedT := t.UnifyVariants()
+
+	if unifiedT.GetType() != UNION {
+		str += TypeToString(unifiedT)
+		str += ">"
+		return str
+	}
+
+	variants := unifiedT.GetVariants()
+
+	switch len(variants) {
+	case 0:
+		str += "untyped"
+
+	default:
+		for _, variantT := range variants {
+			switch variantT.GetType() {
+			case UNION:
+				str += UnionTypeToString(variantT.variants)
+
+			default:
+				str += TypeToString(&variantT)
+			}
+
+			str += " "
+		}
+
+		str = str[:len(str)-1]
+	}
+
+	str += ">"
+
+	return str
+}
+
+func UnionTypeToString(unionTypes []T) string {
+	str := "Union<"
+
+	for _, variantT := range unionTypes {
+		switch variantT.tType {
+		case UNION:
+			str += UnionTypeToString(variantT.GetVariants())
+
+		default:
+			str += TypeToString(&variantT)
+		}
+
+		str += " "
+	}
+
+	str = str[:len(str)-1]
+	str += ">"
+
+	return str
+}
+
+func TypeToString(t *T) string {
+	if t == nil {
+		return "Unknown"
+	}
+
+	switch t.tType {
+	case NIL:
+		return "NilClass"
+	case INT:
+		return "Integer"
+	case UNKNOWN:
+		return "Unknown"
+	case STRING:
+		return "String"
+	case BOOL:
+		return "Bool"
+	case FLOAT:
+		return "Float"
+	case UNTYPED:
+		return "untyped"
+	case ARRAY:
+		return ArrayTypeToString(t)
+	case HASH:
+		return "Hash"
+	case UNION:
+		return UnionTypeToString(t.variants)
+	case OBJECT:
+		str := t.GetFrame()
+		switch str {
+		case "", "Builtin":
+			return t.GetObjectClass()
+		default:
+			return str + "::" + t.GetObjectClass()
+		}
+	case BLOCK:
+		return "Block"
+	case CLASS:
+		return t.ToString()
+	case SELF:
+		return "Self"
+	case SYMBOL:
+		return "Symbol"
+	case KEYVALUE:
+		return "KeyValue"
+	case CONST:
+		return "Const"
+	case RANGE:
+		return "Range"
+	case UNIFY:
+		return "Unify"
+	case OPTIONAL_UNIFY:
+		return "OptiionalUnify"
+	case SELF_ARRAY:
+		return "SelfArray"
+	case ARGUMENT:
+		return "Argument"
+	case UNIFY_ARGUMENT:
+		return "UnifyArgument"
+	case FLATTEN:
+		return "Flatten"
+	case BLOCK_RESULT_ARRAY:
+		return "BlockResultArray"
+	case KEYVALUE_ARRAY:
+		return "KeyValueArray"
+	case ITEM:
+		return "Item"
+	case OWNER:
+		return "Owner"
+	default:
+		//fmt.Println(t.tType)
+		//panic("type convert error")
+
+		return "Unknown"
+	}
+}

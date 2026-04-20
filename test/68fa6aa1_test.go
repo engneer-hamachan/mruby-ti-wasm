@@ -1,0 +1,20 @@
+package main
+
+import (
+	"os/exec"
+	"strings"
+	"testing"
+)
+
+func Test68fa6aa1(t *testing.T) {
+	t.Parallel()
+	cmd := exec.Command("../ti", "./68fa6aa1.rb")
+
+	output, _ := cmd.CombinedOutput()
+
+	expectedOutput := "./68fa6aa1.rb:::8:::instance method '+' is not defined for NilClass"
+
+	if strings.TrimSpace(string(output)) != strings.TrimSpace(expectedOutput) {
+		t.Errorf("Expected output: %s, but got: %s", expectedOutput, string(output))
+	}
+}

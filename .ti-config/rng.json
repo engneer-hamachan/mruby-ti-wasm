@@ -1,0 +1,41 @@
+{
+  "frame": "Builtin",
+  "class": "RNG",
+  "extends": [],
+  "instance_methods": [],
+  "class_methods": [
+    {
+      "name": "random_int",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      }
+    },
+    {
+      "name": "random_string",
+      "arguments": [
+        {
+          "type": [
+            "Int"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "String"
+        ]
+      }
+    },
+    {
+      "name": "uuid",
+      "arguments": [],
+      "return_type": {
+        "type": [
+          "String"
+        ]
+      }
+    }
+  ]
+}

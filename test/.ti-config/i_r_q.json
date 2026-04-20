@@ -1,0 +1,99 @@
+{
+  "frame": "Builtin",
+  "class": "IRQ",
+  "type": "module",
+  "extends": [],
+  "instance_methods": [
+    {
+      "name": "irq",
+      "arguments": [
+        {
+          "type": [
+            "Int"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "NilClass"
+        ]
+      },
+      "block_parameters": [
+        "GPIO",
+        "Int",
+        "Untyped"
+      ]
+    }
+  ],
+  "class_methods": [
+    {
+      "name": "process",
+      "arguments": [
+        {
+          "type": [
+            "Int"
+          ],
+          "is_default": true
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      }
+    },
+    {
+      "name": "register",
+      "arguments": [
+        {
+          "type": [
+            "IRQInstance"
+          ]
+        },
+        {
+          "type": [
+            "Hash"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      }
+    },
+    {
+      "name": "unregister",
+      "arguments": [
+        {
+          "type": [
+            "Int"
+          ]
+        }
+      ],
+      "return_type": {
+        "type": [
+          "Bool"
+        ]
+      }
+    }
+  ],
+  "constants": [
+    {
+      "name": "MAX_PROCESS_COUNT",
+      "return_type": {
+        "type": [
+          "Int"
+        ]
+      }
+    },
+    {
+      "name": "HANDLER",
+      "return_type": {
+        "type": [
+          "Hash"
+        ]
+      }
+    }
+  ]
+}
