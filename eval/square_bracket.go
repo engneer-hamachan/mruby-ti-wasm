@@ -651,6 +651,11 @@ func (e *Evaluator) referenceEvaluation(
 			return e.generalReferenceEvaluation(p, ctx, objectT, t)
 		}
 
+		methodT = base.GetMethodT(ctx.GetFrame(), base.TypeToString(t), "[]=", false)
+		if methodT != nil {
+			return e.generalReferenceEvaluation(p, ctx, objectT, t)
+		}
+
 		p.SkipToTargetToken("]")
 
 		if t.IsTargetClassObject("Proc") {
